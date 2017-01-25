@@ -2,7 +2,7 @@ module Main exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (keyCode, on, onInput)
+import Html.Events exposing (keyCode, on, onCheck, onInput)
 import Json.Decode as Json
 
 
@@ -30,10 +30,10 @@ type alias Model =
 
 type Msg
     = Add Todo
-    | Complete Todo
     | Delete Todo
     | Filter FilterState
     | InputTitle String
+    | Toggle Todo
 
 
 blankTodo : Todo
@@ -82,9 +82,6 @@ update msg model =
                 , nextId = model.nextId + 1
             }
 
-        Complete todo ->
-            model
-
         Delete todo ->
             model
 
@@ -100,6 +97,25 @@ update msg model =
                     { oldTodo | title = title }
             in
                 { model | todo = newTodo }
+
+        Toggle todo ->
+            let
+                newTodos =
+                    model.todos
+                        |> List.map
+                            (\it ->
+                                if it.id == todo.id then
+                                    toggle it
+                                else
+                                    it
+                            )
+            in
+                { model | todos = newTodos }
+
+
+toggle : Todo -> Todo
+toggle todo =
+    { todo | completed = not todo.completed }
 
 
 view : Model -> Html Msg
@@ -128,7 +144,13 @@ todoView : Todo -> Html Msg
 todoView todo =
     li [ classList [ ( "completed", todo.completed ) ] ]
         [ div [ class "view" ]
-            [ input [ class "toggle", type_ "checkbox", checked todo.completed ] []
+            [ input
+                [ class "toggle"
+                , type_ "checkbox"
+                , checked todo.completed
+                , onCheck (\_ -> Toggle todo)
+                ]
+                []
             , label [] [ text todo.title ]
             , button [ class "destroy" ] []
             ]
