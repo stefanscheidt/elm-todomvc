@@ -7,7 +7,8 @@ import Json.Decode as Json
 
 
 type alias Todo =
-    { title : String
+    { id : Int
+    , title : String
     , completed : Bool
     , editing : Bool
     }
@@ -23,6 +24,7 @@ type alias Model =
     { todos : List Todo
     , todo : Todo
     , filter : FilterState
+    , nextId : Int
     }
 
 
@@ -34,17 +36,10 @@ type Msg
     | InputTitle String
 
 
-mockTodo : Todo
-mockTodo =
-    { title = "A mock todo..."
-    , completed = False
-    , editing = False
-    }
-
-
-initialTodo : Todo
-initialTodo =
-    { title = ""
+blankTodo : Todo
+blankTodo =
+    { id = 0
+    , title = ""
     , completed = False
     , editing = False
     }
@@ -53,17 +48,15 @@ initialTodo =
 initialModel : Model
 initialModel =
     { todos =
-        [ { title = "The first todo"
+        [ { id = 1
+          , title = "The first todo"
           , completed = False
           , editing = False
           }
         ]
-    , todo =
-        { title = ""
-        , completed = False
-        , editing = False
-        }
+    , todo = blankTodo
     , filter = All
+    , nextId = 2
     }
 
 
@@ -83,7 +76,11 @@ update : Msg -> Model -> Model
 update msg model =
     case msg of
         Add todo ->
-            { model | todos = todo :: model.todos, todo = initialTodo }
+            { model
+                | todos = { todo | id = model.nextId } :: model.todos
+                , todo = blankTodo
+                , nextId = model.nextId + 1
+            }
 
         Complete todo ->
             model
