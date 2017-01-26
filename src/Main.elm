@@ -2,7 +2,7 @@ module Main exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (keyCode, on, onCheck, onInput)
+import Html.Events exposing (keyCode, on, onCheck, onClick, onInput)
 import Json.Decode as Json
 
 
@@ -86,7 +86,7 @@ update msg model =
             model
 
         Filter filterState ->
-            model
+            { model | filter = filterState }
 
         InputTitle title ->
             let
@@ -118,6 +118,24 @@ toggle todo =
     { todo | completed = not todo.completed }
 
 
+filterTodos : FilterState -> List Todo -> List Todo
+filterTodos filterState todos =
+    let
+        filter =
+            case filterState of
+                All ->
+                    (\_ -> True)
+
+                Active ->
+                    (\todo -> todo.completed == False)
+
+                Completed ->
+                    (\todo -> todo.completed == True)
+    in
+        todos
+            |> List.filter filter
+
+
 view : Model -> Html Msg
 view model =
     section [ class "todoapp" ]
@@ -135,7 +153,24 @@ view model =
             ]
         , section [ class "main" ]
             [ ul [ class "todo-list" ]
-                (model.todos |> List.map todoView)
+                (model.todos
+                    |> filterTodos model.filter
+                    |> List.map todoView
+                )
+            ]
+        , footer [ class "footer" ]
+            [ span [ class "todo-count" ]
+                [ strong []
+                    [ text (toString (model.todos |> filterTodos Active |> List.length))
+                    ]
+                , text " items left"
+                ]
+            , ul [ class "filters" ]
+                [ filterItemView model All
+                , filterItemView model Active
+                , filterItemView model Completed
+                ]
+            , button [ class "clear-completed" ] [ text "Clear completed" ]
             ]
         ]
 
@@ -154,6 +189,18 @@ todoView todo =
             , label [] [ text todo.title ]
             , button [ class "destroy" ] []
             ]
+        ]
+
+
+filterItemView : Model -> FilterState -> Html Msg
+filterItemView model filterState =
+    li []
+        [ a
+            [ classList [ ( "selected", model.filter == filterState ) ]
+            , onClick (Filter filterState)
+            , href "#"
+            ]
+            [ text (toString filterState) ]
         ]
 
 
