@@ -88,13 +88,13 @@ update msg model =
         Filter filterState ->
             { model | filter = filterState }
 
-        InputTitle title ->
+        InputTitle newTitle ->
             let
                 oldTodo =
                     model.todo
 
                 newTodo =
-                    { oldTodo | title = title }
+                    { oldTodo | title = newTitle }
             in
                 { model | todo = newTodo }
 
@@ -124,13 +124,13 @@ filterTodos filterState todos =
         filter =
             case filterState of
                 All ->
-                    (\_ -> True)
+                    always True
 
                 Active ->
-                    (\todo -> todo.completed == False)
+                    .completed >> ((==) False)
 
                 Completed ->
-                    (\todo -> todo.completed == True)
+                    .completed >> ((==) True)
     in
         todos
             |> List.filter filter
