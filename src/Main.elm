@@ -128,10 +128,10 @@ filterTodos filterState todos =
                     always True
 
                 Active ->
-                    .completed >> ((==) False)
+                    not << .completed
 
                 Completed ->
-                    .completed >> ((==) True)
+                    .completed
     in
         todos
             |> List.filter filter
