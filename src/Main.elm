@@ -3,6 +3,7 @@ module Main exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (keyCode, on, onCheck, onClick, onInput)
+import Html.Keyed as Keyed
 import Json.Decode as Json
 
 
@@ -152,7 +153,7 @@ view model =
                 []
             ]
         , section [ class "main" ]
-            [ ul [ class "todo-list" ]
+            [ Keyed.ul [ class "todo-list" ]
                 (model.todos
                     |> filterTodos model.filter
                     |> List.map todoView
@@ -175,21 +176,28 @@ view model =
         ]
 
 
-todoView : Todo -> Html Msg
+todoView : Todo -> ( String, Html Msg )
 todoView todo =
-    li [ classList [ ( "completed", todo.completed ) ] ]
-        [ div [ class "view" ]
-            [ input
-                [ class "toggle"
-                , type_ "checkbox"
-                , checked todo.completed
-                , onCheck (\_ -> Toggle todo)
+    let
+        key =
+            "todo-" ++ (toString todo.id)
+
+        item =
+            li [ classList [ ( "completed", todo.completed ) ] ]
+                [ div [ class "view" ]
+                    [ input
+                        [ class "toggle"
+                        , type_ "checkbox"
+                        , checked todo.completed
+                        , onCheck (\_ -> Toggle todo)
+                        ]
+                        []
+                    , label [] [ text todo.title ]
+                    , button [ class "destroy" ] []
+                    ]
                 ]
-                []
-            , label [] [ text todo.title ]
-            , button [ class "destroy" ] []
-            ]
-        ]
+    in
+        ( key, item )
 
 
 filterItemView : Model -> FilterState -> Html Msg
