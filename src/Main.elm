@@ -84,7 +84,12 @@ update msg model =
             }
 
         Delete todo ->
-            model
+            let
+                newTodos =
+                    model.todos
+                        |> List.filter (\t -> t.id /= todo.id)
+            in
+                { model | todos = newTodos }
 
         Filter filterState ->
             { model | filter = filterState }
@@ -193,7 +198,11 @@ todoView todo =
                         ]
                         []
                     , label [] [ text todo.title ]
-                    , button [ class "destroy" ] []
+                    , button
+                        [ class "destroy"
+                        , onClick (Delete todo)
+                        ]
+                        []
                     ]
                 ]
     in
