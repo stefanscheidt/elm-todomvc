@@ -31,6 +31,7 @@ type alias Model =
 
 type Msg
     = Add Todo
+    | ClearCompleted
     | Delete Todo
     | Filter FilterState
     | InputTitle String
@@ -82,6 +83,13 @@ update msg model =
                 , todo = blankTodo
                 , nextId = model.nextId + 1
             }
+
+        ClearCompleted ->
+            let
+                newTodos =
+                    model.todos |> List.filter (not << .completed)
+            in
+                { model | todos = newTodos }
 
         Delete todo ->
             let
@@ -176,7 +184,11 @@ view model =
                 , filterItemView model Active
                 , filterItemView model Completed
                 ]
-            , button [ class "clear-completed" ] [ text "Clear completed" ]
+            , button
+                [ class "clear-completed"
+                , onClick ClearCompleted
+                ]
+                [ text "Clear completed" ]
             ]
         ]
 
