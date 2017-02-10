@@ -11,7 +11,14 @@
 <body>
   <script src="app.js"></script>
   <script>
-      Elm.Main.fullscreen();
+      var app = Elm.Main.fullscreen();
+
+      app.ports.saveModelJson.subscribe(function(data) {
+          localStorage.setItem("todos", JSON.stringify(data))
+      });
+
+      app.ports.loadModelJson.send(JSON.parse(localStorage.getItem("todos")));
+
   </script>
 </body>
 
