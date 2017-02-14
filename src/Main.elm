@@ -6,6 +6,7 @@ import Html.Events exposing (keyCode, on, onCheck, onClick, onInput)
 import Html.Keyed as Keyed
 import Json.Decode as JD
 import Json.Encode as JE
+import Json.Decode.Pipeline as JDP
 
 
 type alias Todo =
@@ -305,20 +306,20 @@ decodeModelJson value =
 
 modelDecoder : JD.Decoder Model
 modelDecoder =
-    JD.map4 Model
-        (JD.field "todos" (JD.list todoDecoder))
-        (JD.field "todo" todoDecoder)
-        (JD.field "filter" filterStateDecoder)
-        (JD.field "nextId" JD.int)
+    JDP.decode Model
+        |> JDP.required "todos" (JD.list todoDecoder)
+        |> JDP.required "todo" todoDecoder
+        |> JDP.required "filter" filterStateDecoder
+        |> JDP.required "nextId" JD.int
 
 
 todoDecoder : JD.Decoder Todo
 todoDecoder =
-    JD.map4 Todo
-        (JD.field "id" JD.int)
-        (JD.field "title" JD.string)
-        (JD.field "completed" JD.bool)
-        (JD.field "editing" JD.bool)
+    JDP.decode Todo
+        |> JDP.required "id" JD.int
+        |> JDP.required "title" JD.string
+        |> JDP.required "completed" JD.bool
+        |> JDP.required "editing" JD.bool
 
 
 filterStateDecoder : JD.Decoder FilterState
